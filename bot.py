@@ -2,6 +2,7 @@ import asyncio
 import os
 import discord
 from discord.ext import commands
+#import environment_variables
 
 bot = commands.Bot(command_prefix='!')
 bot.remove_command('help')
@@ -40,7 +41,7 @@ async def on_ready():
 ########################### COMMANDS ########################### 
 
 @bot.command(name='intro', pass_context=True)
-async def get_intro(ctx, target_user):
+async def get_intro(ctx, *,  target_user):
 	try:
 		if is_mention(target_user):
 			converter = commands.UserConverter()
