@@ -56,13 +56,19 @@ async def get_intro(target_user):
 	intro_channel = bot.get_channel(INTRO_CHANNEL_ID)
 	async for message in intro_channel.history(limit=300):
 		if message.author == target_user:
-			return target_user.name, message.content
+			if target_user.nick:
+				return target_user.nick, message.content
+			else:
+				return target_user.name, message.content
 
 async def send_intro(ctx, target_user):
 	try:
 		username, message = await get_intro(target_user)
-		dm_message_content = "**{}**. \n--------------------------------------\n{}\n--------------------------------------".format(username, message)
-		await ctx.author.send(dm_message_content)
+		embed = discord.Embed(title="**{}**".format(username), color=0x7598ff)
+		embed.set_thumbnail(url=target_user.avatar_url)
+		embed.add_field(name="Intro", value=message, inline=False)
+		#embed.add_field(image=target_user.avatar_url)
+		await ctx.author.send(embed=embed)
 	except Exception as e:
 		print(e)
 		await ctx.channel.send("User has not made an intro yet!")
