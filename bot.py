@@ -34,6 +34,7 @@ async def on_ready():
 	print(bot.user.name)
 	print(bot.user.id)
 	print('------')
+	await bot.change_presence(activity=discord.Game(name="!intro [name or mention]"))
 
 
 
@@ -71,7 +72,7 @@ async def send_intro(ctx, target_user):
 		await ctx.author.send(embed=embed)
 	except Exception as e:
 		print(e)
-		await ctx.channel.send("User has not made an intro yet!")
+		await ctx.channel.send("Could not fetch intro.")
 
 async def string_to_user(ctx, string_to_convert):
 	string_to_convert = string_to_convert.lower()
