@@ -2,7 +2,6 @@ import asyncio
 import os
 import discord
 from discord.ext import commands
-#import environment_variables
 
 bot = commands.Bot(command_prefix='!')
 bot.remove_command('help')
@@ -24,6 +23,11 @@ def make_mention_object_by_id(author_id):
 def is_mention(input):
 	return input.startswith("<@!")
 
+async def fileify(avatar_url):
+	filename = "avatar.jpg"
+	await avatar_url.save(filename)
+	file = discord.File(fp=filename)
+	return file
 
 
 ########################### BOOT ########################### 
@@ -68,8 +72,15 @@ async def send_intro(ctx, target_user):
 		embed = discord.Embed(title="**{}**".format(username), color=0x7598ff)
 		embed.set_thumbnail(url=target_user.avatar_url)
 		embed.add_field(name="Intro", value=message, inline=False)
-		#embed.add_field(image=target_user.avatar_url)
 		await ctx.author.send(embed=embed)
+	#probably too long for embed
+	except discord.errors.HTTPException as e:
+		print(e)
+		username, message = await get_intro(target_user)
+		introstring = "**{}**\n---------------------------------------\n".format(username)
+		introstring += "{}\n---------------------------------------".format(message)
+		avatar_file = await fileify(target_user.avatar_url)
+		await ctx.author.send(content=introstring, file=avatar_file)
 	except Exception as e:
 		print(e)
 		await ctx.channel.send("Could not fetch intro.")
