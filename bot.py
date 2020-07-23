@@ -6,6 +6,7 @@ from discord.ext import commands
 bot = commands.Bot(command_prefix='!')
 bot.remove_command('help')
 INTRO_CHANNEL_ID = int(os.environ["INTRO_CHANNEL_ID"])
+GUILD_ID = int(os.environ["GUILD_ID"])
 
 ########################### HELPERS ########################### 
 
@@ -40,6 +41,10 @@ async def on_ready():
 	print('------')
 	await bot.change_presence(activity=discord.Game(name="!intro [name or mention]"))
 
+	#imagine a world where I didn't have to do this
+	#but this has to work on ready so here we are
+	global guild
+	guild = bot.get_guild(GUILD_ID)
 
 
 ########################### COMMANDS ########################### 
@@ -51,14 +56,14 @@ async def get_intro(ctx, *,  target_user):
 			converter = commands.UserConverter()
 			target_user = await converter.convert(ctx, target_user)
 		else:
-			target_user = await string_to_user(ctx, target_user) #target user can be a string
+			target_user = await string_to_user(target_user) #target user can be a string
 		await send_intro(ctx, target_user)
 	except Exception as e:
 		print(e)
 		await ctx.channel.send(content="Could not fetch intro.")
 
 async def get_intro(target_user):
-	intro_channel = bot.get_channel(INTRO_CHANNEL_ID)
+	intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
 	async for message in intro_channel.history(limit=300):
 		if message.author == target_user:
 			if target_user.nick:
@@ -85,9 +90,9 @@ async def send_intro(ctx, target_user):
 		print(e)
 		await ctx.channel.send("Could not fetch intro.")
 
-async def string_to_user(ctx, string_to_convert):
+async def string_to_user(string_to_convert):
 	string_to_convert = string_to_convert.lower()
-	for member in ctx.guild.members:
+	for member in guild.members:
 		if string_to_convert == str(member.nick).lower() or string_to_convert == str(member.name).lower():
 			return member
 
@@ -99,6 +104,7 @@ async def string_to_user(ctx, string_to_convert):
 async def on_message(message):
 	await bot.process_commands(message)
 
+	#dont talk to urself bruh
 	if message.author.id == bot.user.id:
 			return
 
