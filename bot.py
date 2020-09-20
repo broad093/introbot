@@ -64,7 +64,7 @@ async def get_intro(ctx, *,  target_user):
 
 async def get_intro(target_user):
 	intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
-	message_list = await intro_channel.history(limit=1000).flatten()
+	message_list = await intro_channel.history(limit=500).flatten()
 	message_list_reversed = message_list.reverse()
 
 	for message in message_list_reversed:
