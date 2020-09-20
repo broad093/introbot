@@ -67,7 +67,7 @@ async def get_intro(target_user):
 	message_list = await intro_channel.history(limit=1000).flatten()
 	message_list_reversed = message_list.reverse()
 
-	for message in messsage_list_reversed:
+	for message in message_list_reversed:
 		if message.author == target_user:
 			if target_user.nick:
 				return target_user.nick, message.content
