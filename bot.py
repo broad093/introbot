@@ -55,8 +55,10 @@ async def get_intro(ctx, *,  target_user):
 		if is_mention(target_user):
 			converter = commands.UserConverter()
 			target_user = await converter.convert(ctx, target_user)
+			print(target_user)
 		else:
 			target_user = await string_to_user(target_user) #target user can be a string
+			print(target_user)
 		await send_intro(ctx, target_user)
 	except Exception as e:
 		print(e)
@@ -70,8 +72,10 @@ async def get_intro(target_user):
 	for message in message_list:
 		if message.author == target_user:
 			if target_user.nick:
+				print(message.content)
 				return target_user.nick, message.content
 			else:
+				print(message.content)
 				return target_user.name, message.content
 
 async def send_intro(ctx, target_user):
