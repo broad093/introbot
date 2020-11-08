@@ -45,6 +45,8 @@ async def on_ready():
 	#but this has to work on ready so here we are
 	global guild
 	guild = bot.get_guild(GUILD_ID)
+	print(guild)
+	print (guild.name)
 	for member in guild.members:
 		print(member.nick,member.name)
 
