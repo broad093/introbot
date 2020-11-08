@@ -100,8 +100,8 @@ async def send_intro(ctx, target_user):
 
 async def string_to_user(string_to_convert):
 	string_to_convert = string_to_convert.lower()
-	print("str to convert is",string_to_convert)
 	for member in guild.members:
+		print(member.nick,member.name)
 		if string_to_convert == str(member.nick).lower() or string_to_convert == str(member.name).lower():
 			return member
 
