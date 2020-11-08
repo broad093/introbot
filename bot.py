@@ -57,6 +57,7 @@ async def get_intro(ctx, *,  target_user):
 			target_user = await converter.convert(ctx, target_user)
 			print(target_user)
 		else:
+			print("I got to strtouser")
 			target_user = await string_to_user(target_user) #target user can be a string
 			print(target_user)
 		await send_intro(ctx, target_user)
@@ -99,6 +100,7 @@ async def send_intro(ctx, target_user):
 
 async def string_to_user(string_to_convert):
 	string_to_convert = string_to_convert.lower()
+	print("str to convert is",string_to_convert)
 	for member in guild.members:
 		if string_to_convert == str(member.nick).lower() or string_to_convert == str(member.name).lower():
 			return member
