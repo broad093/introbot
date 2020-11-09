@@ -3,7 +3,9 @@ import os
 import discord
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix='!')
+intents = discord.Intents.default()  # All but the two privileged ones
+intents.members = True  # Subscribe to the Members intent
+bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command('help')
 INTRO_CHANNEL_ID = int(os.environ["INTRO_CHANNEL_ID"])
 GUILD_ID = int(os.environ["GUILD_ID"])
@@ -45,10 +47,6 @@ async def on_ready():
 	#but this has to work on ready so here we are
 	global guild
 	guild = bot.get_guild(GUILD_ID)
-	print(guild)
-	print (guild.name)
-	for member in guild.members:
-		print(member.nick,member.name)
 
 
 ########################### COMMANDS ########################### 
@@ -59,11 +57,8 @@ async def get_intro(ctx, *,  target_user):
 		if is_mention(target_user):
 			converter = commands.UserConverter()
 			target_user = await converter.convert(ctx, target_user)
-			print(target_user)
 		else:
-			print("I got to strtouser")
 			target_user = await string_to_user(target_user) #target user can be a string
-			print(target_user)
 		await send_intro(ctx, target_user)
 	except Exception as e:
 		print(e)
@@ -77,10 +72,8 @@ async def get_intro(target_user):
 	for message in message_list:
 		if message.author == target_user:
 			if target_user.nick:
-				print(message.content)
 				return target_user.nick, message.content
 			else:
-				print(message.content)
 				return target_user.name, message.content
 
 async def send_intro(ctx, target_user):
@@ -105,7 +98,6 @@ async def send_intro(ctx, target_user):
 async def string_to_user(string_to_convert):
 	string_to_convert = string_to_convert.lower()
 	for member in guild.members:
-		print(member.nick,member.name)
 		if string_to_convert == str(member.nick).lower() or string_to_convert == str(member.name).lower():
 			return member
 
