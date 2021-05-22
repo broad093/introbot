@@ -32,6 +32,13 @@ async def fileify(avatar_url):
 	file = discord.File(fp=filename)
 	return file
 
+async def make_embed(ctx, target_user):
+	username, message = await get_intro(target_user)
+	embed = discord.Embed(title="**{}**".format(username), color=0x7598ff)
+	embed.set_thumbnail(url=target_user.avatar_url)
+	embed.add_field(name="Intro", value=message, inline=False)
+	return embed
+
 
 ########################### BOOT ########################### 
 
@@ -53,20 +60,37 @@ async def on_ready():
 
 @bot.command(name='intro', pass_context=True)
 async def get_intro(ctx, *,  target_user):
+	if is_intro_channel(ctx):
+		return
+	else:
+		try:
+			if is_mention(target_user):
+				converter = commands.UserConverter()
+				target_user = await converter.convert(ctx, target_user)
+			else:
+				target_user = await string_to_user(target_user) #target user can be a string
+			await send_intro(ctx, target_user)
+		except Exception as e:
+			print(e)
+			await ctx.channel.send(content="Could not fetch intro.")
+
+@bot.command(name='dmintro', pass_context=True)
+async def get_intro_dm(ctx, *,  target_user):
 	try:
 		if is_mention(target_user):
 			converter = commands.UserConverter()
 			target_user = await converter.convert(ctx, target_user)
 		else:
 			target_user = await string_to_user(target_user) #target user can be a string
-		await send_intro(ctx, target_user)
+		await send_intro_by_dm(ctx, target_user)
 	except Exception as e:
 		print(e)
-		await ctx.channel.send(content="Could not fetch intro.")
+		if is_intro_channel(ctx):
+			await ctx.channel.send(content="Could not fetch intro.")
 
 async def get_intro(target_user):
 	intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
-	message_list = await intro_channel.history(limit=400).flatten()
+	message_list = await intro_channel.history(limit=1000).flatten()
 	message_list.reverse() #reverse to get first post
 
 	for message in message_list:
@@ -76,12 +100,9 @@ async def get_intro(target_user):
 			else:
 				return target_user.name, message.content
 
-async def send_intro(ctx, target_user):
+async def send_intro_by_dm(ctx, target_user):
 	try:
-		username, message = await get_intro(target_user)
-		embed = discord.Embed(title="**{}**".format(username), color=0x7598ff)
-		embed.set_thumbnail(url=target_user.avatar_url)
-		embed.add_field(name="Intro", value=message, inline=False)
+		embed = await make_embed(ctx, target_user)
 		await ctx.author.send(embed=embed)
 	#probably too long for embed
 	except discord.errors.HTTPException as e:
@@ -91,6 +112,22 @@ async def send_intro(ctx, target_user):
 		introstring += "{}\n---------------------------------------".format(message)
 		avatar_file = await fileify(target_user.avatar_url)
 		await ctx.author.send(content=introstring, file=avatar_file)
+	except Exception as e:
+		print(e)
+		await ctx.channel.send("Could not fetch intro.")
+
+async def send_intro(ctx, target_user):
+	try:
+		embed = await make_embed(ctx, target_user)
+		await ctx.channel.send(embed=embed)
+	#probably too long for embed
+	except discord.errors.HTTPException as e:
+		print(e)
+		username, message = await get_intro(target_user)
+		introstring = "**{}**\n---------------------------------------\n".format(username)
+		introstring += "{}\n---------------------------------------".format(message)
+		avatar_file = await fileify(target_user.avatar_url)
+		await ctx.channel.send(content=introstring, file=avatar_file)
 	except Exception as e:
 		print(e)
 		await ctx.channel.send("Could not fetch intro.")
@@ -111,6 +148,6 @@ async def on_message(message):
 
 	#dont talk to urself bruh
 	if message.author.id == bot.user.id:
-			return
+		return
 
 bot.run(os.environ["BOT_TOKEN"])
