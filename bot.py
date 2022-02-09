@@ -10,6 +10,16 @@ bot.remove_command('help')
 INTRO_CHANNEL_ID = int(os.environ["INTRO_CHANNEL_ID"])
 GUILD_ID = int(os.environ["GUILD_ID"])
 
+THREE_MINUTES = 3 * 60
+
+async def update_intro_list():
+	while True:
+		global message_list
+		intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
+		message_list = await intro_channel.history(limit=2000).flatten()
+		message_list.reverse() #reverse to get first post
+		await asyncio.sleep(THREE_MINUTES)
+
 ########################### HELPERS ########################### 
 
 def is_intro_channel(ctx):
@@ -55,6 +65,8 @@ async def on_ready():
 	global guild
 	guild = bot.get_guild(GUILD_ID)
 
+	bot.loop.create_task(update_intro_list())
+
 
 ########################### COMMANDS ########################### 
 
@@ -89,10 +101,6 @@ async def get_intro_dm(ctx, *,  target_user):
 			await ctx.channel.send(content="Could not fetch intro.")
 
 async def get_intro(target_user):
-	intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
-	message_list = await intro_channel.history(limit=1000).flatten()
-	message_list.reverse() #reverse to get first post
-
 	for message in message_list:
 		if message.author == target_user:
 			if target_user.nick:
