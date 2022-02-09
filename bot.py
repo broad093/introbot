@@ -10,7 +10,7 @@ bot.remove_command('help')
 INTRO_CHANNEL_ID = int(os.environ["INTRO_CHANNEL_ID"])
 GUILD_ID = int(os.environ["GUILD_ID"])
 
-THREE_MINUTES = 3 * 60
+ONE_MINUTE = 60
 
 async def update_intro_list():
 	while True:
@@ -18,7 +18,7 @@ async def update_intro_list():
 		intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
 		message_list = await intro_channel.history(limit=2000).flatten()
 		message_list.reverse() #reverse to get first post
-		await asyncio.sleep(THREE_MINUTES)
+		await asyncio.sleep(ONE_MINUTE)
 
 ########################### HELPERS ########################### 
 
