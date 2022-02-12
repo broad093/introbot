@@ -124,6 +124,7 @@ async def send_intro_by_dm(ctx, target_user):
 		await ctx.author.send(content=introstring, file=avatar_file)
 	except Exception as e:
 		print(e)
+		print(target_user)
 		await ctx.channel.send("Could not fetch intro.")
 
 async def send_intro(ctx, target_user):
@@ -140,6 +141,7 @@ async def send_intro(ctx, target_user):
 		await ctx.channel.send(content=introstring, file=avatar_file)
 	except Exception as e:
 		print(e)
+		print(target_user)
 		await ctx.channel.send("Could not fetch intro.")
 
 async def string_to_user(string_to_convert):
