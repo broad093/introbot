@@ -77,10 +77,10 @@ async def get_intro(ctx, *,  target_user):
 	else:
 		try:
 			if is_mention(target_user):
-				target_user = guild.fetch_member(138458225958715392)
+				target_user = await guild.fetch_member(138458225958715392)
 				print("I tried converting user", target_user)
-				converter = commands.UserConverter()
-				target_user = await converter.convert(ctx, target_user.strip)
+				#converter = commands.UserConverter()
+				#target_user = await converter.convert(ctx, target_user.strip)
 			else:
 				target_user = await string_to_user(target_user) #target user can be a string
 			await send_intro(ctx, target_user)
