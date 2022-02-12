@@ -33,6 +33,9 @@ def is_botadmin(ctx):
 def make_mention_object_by_id(author_id):
 	return "<@{}>".format(author_id)
 
+def strip_mention_to_id(target_user):
+	return int(target_user.strip("<","!","@",">"))
+
 def is_mention(input):
 	return input.startswith("<@!")
 
@@ -77,10 +80,8 @@ async def get_intro(ctx, *,  target_user):
 	else:
 		try:
 			if is_mention(target_user):
-				target_user = await guild.fetch_member(138458225958715392)
+				target_user = await guild.fetch_member(strip_mention_to_id(target_user))
 				print("I tried converting user", target_user)
-				#converter = commands.UserConverter()
-				#target_user = await converter.convert(ctx, target_user.strip)
 			else:
 				target_user = await string_to_user(target_user) #target user can be a string
 			await send_intro(ctx, target_user)
