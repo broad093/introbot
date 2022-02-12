@@ -77,7 +77,7 @@ async def get_intro(ctx, *,  target_user):
 	else:
 		try:
 			if is_mention(target_user):
-				target_user = guild.get_member(target_user)
+				target_user = guild.fetch_member(138458225958715392)
 				print("I tried converting user", target_user)
 				converter = commands.UserConverter()
 				target_user = await converter.convert(ctx, target_user.strip)
