@@ -98,6 +98,7 @@ async def get_intro_dm(ctx, *,  target_user):
 		await send_intro_by_dm(ctx, target_user)
 	except Exception as e:
 		print(e)
+		print(target_user)
 		if is_intro_channel(ctx):
 			await ctx.channel.send(content="Could not fetch intro.")
 
