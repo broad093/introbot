@@ -91,7 +91,7 @@ async def get_intro(ctx, *,  target_user):
 async def get_intro_dm(ctx, *,  target_user):
 	try:
 		if is_mention(target_user):
-			converter = commands.UserConverter()
+			converter = commands.MemberConverter()
 			target_user = await converter.convert(ctx, target_user)
 		else:
 			target_user = await string_to_user(target_user) #target user can be a string
