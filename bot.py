@@ -77,9 +77,10 @@ async def get_intro(ctx, *,  target_user):
 	else:
 		try:
 			if is_mention(target_user):
+				target_user = target.user.strip("<").strip(">").strip("@").strip("!")
 				print("I tried converting user", target_user)
 				converter = commands.UserConverter()
-				target_user = await converter.convert(ctx, target_user)
+				target_user = await converter.convert(ctx, target_user.strip)
 			else:
 				target_user = await string_to_user(target_user) #target user can be a string
 			await send_intro(ctx, target_user)
