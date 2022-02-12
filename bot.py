@@ -159,3 +159,4 @@ async def on_message(message):
 		return
 
 bot.run(os.environ["BOT_TOKEN"])
+#test
