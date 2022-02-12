@@ -90,15 +90,15 @@ async def get_intro(ctx, *,  target_user):
 @bot.command(name='dmintro', pass_context=True)
 async def get_intro_dm(ctx, *,  target_user):
 	try:
+		print("get_intro_dm",target_user)
 		if is_mention(target_user):
-			converter = commands.MemberConverter()
+			converter = commands.UserConverter()
 			target_user = await converter.convert(ctx, target_user)
 		else:
 			target_user = await string_to_user(target_user) #target user can be a string
 		await send_intro_by_dm(ctx, target_user)
 	except Exception as e:
 		print(e)
-		print(target_user)
 		if is_intro_channel(ctx):
 			await ctx.channel.send(content="Could not fetch intro.")
 
