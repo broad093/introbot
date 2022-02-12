@@ -89,8 +89,8 @@ async def get_intro(ctx, *,  target_user):
 
 @bot.command(name='dmintro', pass_context=True)
 async def get_intro_dm(ctx, *,  target_user):
+	print("get_intro_dm",target_user)
 	try:
-		print("get_intro_dm",target_user)
 		if is_mention(target_user):
 			converter = commands.UserConverter()
 			target_user = await converter.convert(ctx, target_user)
@@ -111,6 +111,7 @@ async def get_intro(target_user):
 				return target_user.name, message.content
 
 async def send_intro_by_dm(ctx, target_user):
+	print("send_intro_dm",target_user)
 	try:
 		embed = await make_embed(ctx, target_user)
 		await ctx.author.send(embed=embed)
