@@ -77,6 +77,7 @@ async def get_intro(ctx, *,  target_user):
 	else:
 		try:
 			if is_mention(target_user):
+				print("I tried converting user", target_user)
 				converter = commands.UserConverter()
 				target_user = await converter.convert(ctx, target_user)
 			else:
