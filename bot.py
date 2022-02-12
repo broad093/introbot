@@ -84,6 +84,7 @@ async def get_intro(ctx, *,  target_user):
 			await send_intro(ctx, target_user)
 		except Exception as e:
 			print(e)
+			print(target_user)
 			await ctx.channel.send(content="Could not fetch intro.")
 
 @bot.command(name='dmintro', pass_context=True)
