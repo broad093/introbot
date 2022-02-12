@@ -129,6 +129,7 @@ async def send_intro_by_dm(ctx, target_user):
 		await ctx.channel.send("Could not fetch intro.")
 
 async def send_intro(ctx, target_user):
+	print("send_intro",target_user)
 	try:
 		embed = await make_embed(ctx, target_user)
 		await ctx.channel.send(embed=embed)
