@@ -34,10 +34,10 @@ def make_mention_object_by_id(author_id):
 	return "<@{}>".format(author_id)
 
 def strip_mention_to_id(target_user):
-	return int(target_user.strip("<@!").strip(">"))
+	return int(target_user.strip("<@").strip(">"))
 
 def is_mention(input):
-	return input.startswith("<@!")
+	return input.startswith("<@")
 
 async def fileify(avatar_url):
 	filename = "avatar.jpg"
