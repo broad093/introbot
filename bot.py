@@ -79,7 +79,6 @@ async def get_intro(ctx, *,  target_user):
 		return
 	else:
 		try:
-			print("Target USER is", strip_mention_to_id(target_user))
 			if is_mention(target_user):
 				target_user = await guild.fetch_member(strip_mention_to_id(target_user))
 				print("I tried converting user", target_user)
