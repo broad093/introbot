@@ -79,6 +79,7 @@ async def get_intro(ctx, *,  target_user):
 		return
 	else:
 		try:
+			target_user = target_user.encode('utf-8')
 			if is_mention(target_user):
 				target_user = await guild.fetch_member(strip_mention_to_id(target_user))
 				print("I tried converting user", target_user)
