@@ -16,7 +16,7 @@ async def update_intro_list():
     while True:
         global message_list
         intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
-        message_list = [message_list async for message_list in intro_channel.history(limit=2000)]
+        message_list = [message_list async for message_list in intro_channel.history(limit=4000)]
         message_list.reverse() #reverse to get first post
         await asyncio.sleep(ONE_MINUTE)
 
