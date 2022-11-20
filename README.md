@@ -1,5 +1,5 @@
 ## README
-How to use introbot! This bot pulls a user's most recent message from a specified introductions channel.
+How to use introbot! This bot pulls a user's first message from a specified introductions channel.
 
 **COMMANDS**  
 **!intro**  
