@@ -84,8 +84,7 @@ async def help_info(msg):
 
     embed = discord.Embed(title='Help',description=
     """
-    How to use introbot! This bot pulls a user's first message from the introductions channel.  
-    If you would like to change your introduction, you must edit your original message.
+    How to use introbot! This bot pulls a user's first message from the introductions channel. If you would like to change your introduction, you must edit your original message.
 
     **COMMANDS**
     **!intro**
