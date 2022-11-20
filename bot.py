@@ -11,7 +11,7 @@ bot.remove_command('help')
 # environment variables
 INTRO_CHANNEL_ID = int(os.environ["INTRO_CHANNEL_ID"])
 GUILD_ID = int(os.environ["GUILD_ID"])
-BOT_TOKEN = int(os.environ["BOT_TOKEN"])
+BOT_TOKEN = os.environ["BOT_TOKEN"]
 
 ONE_MINUTE = 60
 
