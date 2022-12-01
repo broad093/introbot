@@ -58,7 +58,7 @@ async def make_embed(ctx, target_user):
 # embed color pulls from user's role color
 # added link to original message
     embed = discord.Embed(title="**{}**".format(username),description="**Intro**\n{}".format(message),color=target_user.color)
-    embed.set_thumbnail(url=target_user.avatar_url)
+    embed.set_thumbnail(url=target_user.avatar)
     embed.add_field(name="--", value="[*View original message...*]({})".format(url), inline=False)
     return embed
 
@@ -164,7 +164,7 @@ async def send_intro_by_dm(ctx, target_user):
         username, message, url = await get_intro(target_user)
         introstring = "**{}**\n---------------------------------------\n".format(username)
         introstring += "{}\n---------------------------------------".format(message)
-        avatar_file = await fileify(target_user.avatar_url)
+        avatar_file = await fileify(target_user.avatar)
         await ctx.author.send(content=introstring, file=avatar_file)
     except Exception as e:
         print(e)
@@ -181,7 +181,7 @@ async def send_intro(ctx, target_user):
         username, message, url = await get_intro(target_user)
         introstring = "**{}**\n---------------------------------------\n".format(username)
         introstring += "{}\n---------------------------------------".format(message)
-        avatar_file = await fileify(target_user.avatar_url)
+        avatar_file = await fileify(target_user.avatar)
         await ctx.channel.send(content=introstring, file=avatar_file)
     except Exception as e:
         print(e)
