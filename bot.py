@@ -12,7 +12,7 @@ bot.remove_command('help')
 INTRO_CHANNEL_ID = int(os.environ["INTRO_CHANNEL_ID"])
 GUILD_ID = int(os.environ["GUILD_ID"])
 BOT_TOKEN = os.environ["BOT_TOKEN"]
-#TESTING REMOVE
+
 ONE_MINUTE = 60
 
 async def update_intro_list():
@@ -55,9 +55,10 @@ async def make_embed(ctx, target_user):
     username, message, url= await get_intro(target_user)
 
 # adjusted it so that the 1024 character limit is now 4096
+# embed color pulls from user's role color
 # added link to original message
     embed = discord.Embed(title="**{}**".format(username),description="**Intro**\n{}".format(message),color=target_user.color)
-    #embed.set_thumbnail(url=target_user.avatar_url)
+    embed.set_thumbnail(url=target_user.avatar_url)
     embed.add_field(name="--", value="[*View original message...*]({})".format(url), inline=False)
     return embed
 
@@ -145,7 +146,6 @@ async def get_intro_dm(ctx, *,  target_user):
             await ctx.channel.send(content="Could not fetch intro.")
 
 async def get_intro(target_user):
-#    if target_user ==
     for message in message_list:
         if message.author == target_user:
             if target_user.nick:
@@ -164,8 +164,8 @@ async def send_intro_by_dm(ctx, target_user):
         username, message, url = await get_intro(target_user)
         introstring = "**{}**\n---------------------------------------\n".format(username)
         introstring += "{}\n---------------------------------------".format(message)
-        # avatar_file = await fileify(target_user.avatar_url)
-        #await ctx.author.send(content=introstring, file=avatar_file)
+        avatar_file = await fileify(target_user.avatar_url)
+        await ctx.author.send(content=introstring, file=avatar_file)
     except Exception as e:
         print(e)
         await ctx.channel.send("Could not fetch intro.")
@@ -181,8 +181,8 @@ async def send_intro(ctx, target_user):
         username, message, url = await get_intro(target_user)
         introstring = "**{}**\n---------------------------------------\n".format(username)
         introstring += "{}\n---------------------------------------".format(message)
-        #avatar_file = await fileify(target_user.avatar_url)
-        #await ctx.channel.send(content=introstring, file=avatar_file)
+        avatar_file = await fileify(target_user.avatar_url)
+        await ctx.channel.send(content=introstring, file=avatar_file)
     except Exception as e:
         print(e)
         await ctx.channel.send("Could not fetch intro.")
