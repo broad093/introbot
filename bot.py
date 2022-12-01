@@ -202,12 +202,12 @@ async def help_info(msg):
         return
 
     embed = discord.Embed(title='Changelog',color=0xcda971)
-    embed.add_field(name="**introbot (v1.1) - updated 11.20.2022**",
+    embed.add_field(name="**introbot (v1.2) - updated 12.1.2022**",
     value=
     """
-➢ Changed maximum length of intro from 1024 characters --> 4096 characters
-➢ Fixed bug for !dmintro command
-➢ Added link to jump to original message
+➢ Fixed intros not working in forums
+➢ Fixed intros not working in voice channel chats
+➢ Fixed bug for intros not updating edits or grabbing new ones from <#1030656443386445864>
 
 Type `!introHelp` for more information on specific commands.
 ...
