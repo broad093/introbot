@@ -5,7 +5,7 @@ from discord.ext import commands
 
 intents = discord.Intents.all()  # All but the two privileged ones
 intents.members = True  # Subscribe to the Members intent
-bot = commands.Bot(command_prefix='!', intents=intents,case_insensitive=True)
+bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command('help')
 
 # environment variables
