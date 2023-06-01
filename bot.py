@@ -191,7 +191,7 @@ async def dm(ctx, *,  target_user):
             await ctx.channel.send(content="Could not fetch intro.")
 
 ########################### HELP ############################## 
-@intro.command()
+@intro.command(name="-help")
 async def help(msg):
     user = msg.author.id
 
@@ -244,9 +244,6 @@ Type `!intro -help` for more information on a command. If there are any problems
 #                 print(e)
 #                 await this.channel.send(content="Could not find ID.")
 # - - - - - - - - - - - - - - - - - -
-async def __init__(self, user, msg):
-    self._user = user
-    self._msg = msg
 
 async def get_setintro(target_user):
     intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
