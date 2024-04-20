@@ -109,7 +109,7 @@ def is_messageID(input):
     return int(input)
 
 async def fileify(avatar_url):
-    filename = "avatar.jpg"
+    filename = "useravatar.jpg"
     await avatar_url.save(filename)
     file = discord.File(fp=filename)
     return file
