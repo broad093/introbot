@@ -15,49 +15,69 @@ INTRO_CHANNEL_ID = int(os.environ["INTRO_CHANNEL_ID"])
 GUILD_ID = int(os.environ["GUILD_ID"])
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 
-ONE_MINUTE = 60
-
 filename = './intros.json'
-setIntros = []
+messagehistory = './history.json'
+setIntros = {}
+historyIntros = {}
  
 # Clean this up later, this holds the JSON data. Adjust it so that it fetches data from JSON in the future.
 if path.isfile(filename) is False:
+  raise Exception("File not found")
+
+if path.isfile(messagehistory) is False:
   raise Exception("File not found")
  
 # Read JSON file
 with open(filename) as fp:
   setIntros = json.load(fp)
+with open(messagehistory) as fp:
+  historyIntros = json.load(fp)
  
 # Verify existing dict
-print(setIntros)
-
 print(type(setIntros))
+print(type(historyIntros))
  
 
 async def update_set_intros():
-    print(setIntros)
     with open(filename, 'w') as json_file:
         json.dump(setIntros, json_file, 
                             indent=4,  
                             separators=(',',': '))
-    print('Successfully added set intro')
-
-async def update_intro_list():
-    while True:
-        global message_list
-        intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
-        message_list = [message_list async for message_list in intro_channel.history(limit=4000,oldest_first=True)]
-        await asyncio.sleep(ONE_MINUTE)
+    print('Successfully updated set intro')
 
 def check_set_intro_list(target_user):
     while True:
         with open('./intros.json') as fp:
             data = json.load(fp)
-        for intro in data:
-            if intro["ID"] == target_user.id:
+        for user in data:
+            if data[user]["ID"] == target_user.id:
                 return True
         break
 
+def check_intro_history_list(target_user):
+    while True:
+        with open('./history.json') as fp:
+            data = json.load(fp)
+
+        for user in data:
+            if data[user]["ID"] == target_user.id:
+                return True
+        break
+
+async def update_intro_list():
+    global message_list
+    intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
+    message_list = [message_list async for message_list in intro_channel.history(limit=10000,oldest_first=False)]
+
+async def refresh_intro_list():
+    for message in message_list:
+        if message.type != "public_thread" or "private_thread":
+            historyIntros[message.author.name] = {'ID':message.author.id,'Intro':message.id}
+    
+    with open(messagehistory, 'w') as json_file:
+        json.dump(historyIntros, json_file, 
+                            indent=4,  
+                            separators=(',',': '))
 
 ########################### HELPERS ########################### 
 
@@ -89,7 +109,7 @@ def is_messageID(input):
     return int(input)
 
 async def fileify(avatar_url):
-    filename = "avatar.jpg"
+    filename = "useravatar.jpg"
     await avatar_url.save(filename)
     file = discord.File(fp=filename)
     return file
@@ -97,7 +117,7 @@ async def fileify(avatar_url):
 async def make_embed(target_user):
     if check_set_intro_list(target_user):
         username, message, url = await get_setintro(target_user)
-    else: 
+    elif check_intro_history_list(target_user):
         username, message, url = await get_intro(target_user)
 
 # adjusted it so that the 1024 character limit is now 4096
@@ -115,7 +135,6 @@ async def on_ready():
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
-    print('------')
     await bot.change_presence(activity=discord.Game(name="!intro [name or mention]"))
 
     #imagine a world where I didn't have to do this
@@ -123,7 +142,10 @@ async def on_ready():
     global guild
     guild = bot.get_guild(GUILD_ID)
 
-    bot.loop.create_task(update_intro_list())
+    await update_intro_list()
+    # await refresh_intro_list()
+    print('history.json updated and refreshed')
+    print('------')
 
 ########################### COMMANDS ########################### 
 # @client.group(invoke_without_command = True) # for this main command (.help)
@@ -135,7 +157,7 @@ async def on_ready():
 #     await ctx.send("Moderation commands : kick, ban, mute, unban")
 
 @bot.group(invoke_without_command=True)
-async def intro(ctx, target_user):
+async def intro(ctx, *,target_user):
     if is_intro_channel(ctx):
         return
     else:
@@ -159,10 +181,10 @@ async def set(ctx, link: commands.MessageConverter):
     else:
         try:
             if ctx.author.id == link.author.id:
-                setIntros.append({"ID": link.author.id, "Intro": link.id})
+                setIntros[ctx.author.name] = {'ID':link.author.id,'Intro':link.id}
                 await update_set_intros()
                 print("I tried setting user", link.author)
-                await ctx.channel.send(content=link.jump_url)
+                await ctx.channel.send(f"Updated intro to: {link.jump_url}")
             else:
                 print("I tried setting user", ctx.author, "intro as", link.author)
                 await ctx.channel.send(content="Please set your own intro.")
@@ -174,6 +196,22 @@ async def set_error(ctx, error):
     if isinstance(error, commands.BadArgument):
         print("invalid intro link")
         await ctx.channel.send(content="Please set a valid intro link.")
+
+@intro.command(name="-reset")
+async def reset(ctx: commands.MessageConverter):
+    print("resetting to default intro...")
+    if is_intro_channel(ctx):
+        return
+    else:
+        try:
+            if ctx.author.name in setIntros:
+                setIntros.pop(ctx.author.name)
+                await update_set_intros()
+                print("I tried resetting intro by", ctx.author.name)
+                await ctx.channel.send(f"Reset to default intro.")
+        except Exception as e:
+            print(e, "\nUser not in setIntros")
+            await ctx.channel.send(content="Unable to reset intro, no saved intro found.")
 
 @intro.command(name="-dm")
 async def dm(ctx, *,  target_user):
@@ -190,6 +228,15 @@ async def dm(ctx, *,  target_user):
         if is_intro_channel(ctx):
             await ctx.channel.send(content="Could not fetch intro.")
 
+@intro.command(name="-refresh")
+async def refresh(ctx):
+    print("refreshing intro list")
+    if is_intro_channel(ctx):
+        return
+    else:
+        await refresh_intro_list()
+        await ctx.channel.send(content="Refreshed intro list.")
+
 ########################### HELP ############################## 
 @intro.command(name="-help")
 async def help(msg):
@@ -202,69 +249,52 @@ async def help(msg):
     """
 Someone asks a question and you'd like some quick insight on their background? Use introbot to help! This bot pulls a user's first message from the introductions channel.
 
-*NOTE: If you would like to change your introduction, you must edit your original message.*
+**NOTE: If you would like to change your introduction, you must edit your *first original* message in <#1030656443386445864> or use `!intro -set URL` to pull a new message.**
 
-**COMMANDS**
+**ー　COMMANDS　ー**
 **!intro**
 *Use this command followed by the user's name or handle to pull a user's introduction.
 You can either mention the user or type their EXACT name as known in the sever.*
-EXAMPLE 1: `!intro @BobaTalks`
-EXAMPLE 2: `!intro BobaTalks`
+・EXAMPLE 1: `!intro @BobaTalks`
+・EXAMPLE 2: `!intro BobaTalks`
 
-**!intro -set *message URL* **
-*Use this command to set an introduction. Must be __your own__ message written in the introductions channel.
-EXAMPLE: `!intro -set https://discord.com/channels/1029965764960210945/1037819474629369876/1113750346515357737`
+**!intro -set *URL* **
+*Use this command to set an introduction. Must be __your own__ message written in the introductions channel.*
+・EXAMPLE: `!intro -set https://discord.com/channels/10299..../..`
 
-**!intro -dm**
-*Use this command if you would like introbot to send a user's introduction to you via Direct Message.*
+**!intro -reset **
+*Use this command to reset your introduction to your first message sent in the introductions channel.*
+・EXAMPLE: `!intro -reset`
 
-Type `!intro -help` for more information on a command. If there are any problems with this bot, please let a moderator know.
+Type `!intro -help` for more information on a command.
+...
     """,
     color=0xcda971)
+    embed.set_footer(text="If there are any problems with this bot, please let a moderator know.")
     await msg.send(embed=embed)
 
     print('help information sent')
-
-# @bot.command(name='introSet', pass_context=True)
-# async def set_intro(this, command, link: commands.MessageConverter):
-#     print(link.author.id)
-#     if is_intro_channel(this):
-#         return
-#     else:
-#         if command == "-set":
-#             try:
-#                 if this.author.id == link.author.id:
-#                     setIntros.append({"ID": link.author.id, "msg": link.id})
-#                     print("I tried setting user")
-#                     await this.channel.send(content=link.jump_url)
-#                 else:
-#                     target_user = await string_to_user(target_user) #target user can be a string
-#                     print("I tried string user", target_user)
-#             except Exception as e:
-#                 print(e)
-#                 await this.channel.send(content="Could not find ID.")
 # - - - - - - - - - - - - - - - - - -
 
 async def get_setintro(target_user):
     intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
     with open('./intros.json') as fp:
         data = json.load(fp)
-    for intro in data:
-        if intro["ID"] == target_user.id:
-            messageObj = await intro_channel.fetch_message(intro["Intro"])
+    for user in data:
+        if data[user]["ID"] == target_user.id:
+            messageObj = await intro_channel.fetch_message(data[user]["Intro"])
             print("sending set intro")
-            return messageObj.author.nick, messageObj.content, messageObj.jump_url
-        else:
-            return messageObj.author.name, messageObj.content, messageObj.jump_url
+            return messageObj.author.display_name, messageObj.content, messageObj.jump_url
 
 async def get_intro(target_user):
-    for message in message_list:
-        if message.author == target_user:
-            print("sending channel intro")
-            if target_user.nick:
-                return target_user.nick, message.content, message.jump_url
-            else:
-                return target_user.name, message.content, message.jump_url
+    intro_channel = guild.get_channel(INTRO_CHANNEL_ID)
+    with open('./history.json') as fp:
+        data = json.load(fp)
+    for user in data:
+        if data[user]["ID"] == target_user.id:
+            print("sending saved intro")
+            obj = await intro_channel.fetch_message(data[user]["Intro"])
+            return obj.author.display_name, obj.content, obj.jump_url
 
 async def send_intro_by_dm(ctx, target_user):
     print("send_intro_dm",target_user)
@@ -315,11 +345,12 @@ async def help_info(msg):
         return
 
     embed = discord.Embed(title='Changelog',color=0xcda971)
-    embed.add_field(name="**introbot (v2.0, beta) - updated 06.02.2022**",
+    embed.add_field(name="**introbot (v2.1, beta) - updated 04.20.2024**",
     value=
     """
-➢ Fixed intro refresh not working (hopefully)
-➢ Added new commands to set intro (!intro -set >link to intro<)
+➢ General bug fixes related to discord updates
+➢ Adjusted intro refresh to happen everytime a new message is sent in introductions instead of every minute
+➢ Added new command to reset intro to first message (!intro -reset)
 
 Type `!intro -help` for more information on specific commands.
 ...
@@ -335,7 +366,13 @@ Type `!intro -help` for more information on specific commands.
 async def on_message(message):
     await bot.process_commands(message)
 
-    #dont talk to urself bruh
+    # if message is sent in channel then add new intro to json
+    if is_intro_channel(message):
+        if message.type != "public_thread" or "private_thread":
+            await update_intro_list()
+            await refresh_intro_list()
+        print('Introductions updated and refreshed')
+
     if message.author.id == bot.user.id:
         return
 
