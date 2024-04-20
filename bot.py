@@ -1,4 +1,4 @@
-import asyncio
+from dotenv import load_dotenv
 import os
 import json
 from os import path
@@ -10,6 +10,7 @@ intents.members = True  # Subscribe to the Members intent
 bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command('help')
 
+load_dotenv('.env')
 # environment variables
 INTRO_CHANNEL_ID = int(os.environ["INTRO_CHANNEL_ID"])
 GUILD_ID = int(os.environ["GUILD_ID"])
@@ -142,8 +143,9 @@ async def on_ready():
     global guild
     guild = bot.get_guild(GUILD_ID)
 
+    print('Loading introductions list...')
     await update_intro_list()
-    # await refresh_intro_list()
+    await bot.tree.sync()
     print('history.json updated and refreshed')
     print('------')
 
