@@ -145,7 +145,7 @@ async def on_ready():
 
     print('Loading introductions list...')
     await update_intro_list()
-    await bot.tree.sync()
+    await refresh_intro_list()
     print('history.json updated and refreshed')
     print('------')
 
@@ -335,7 +335,7 @@ async def send_intro(ctx, target_user):
 async def string_to_user(string_to_convert):
     string_to_convert = string_to_convert.lower()
     for member in guild.members:
-        if string_to_convert == str(member.nick).lower() or string_to_convert == str(member.name).lower():
+        if string_to_convert == str(member.display_name).lower() or string_to_convert == str(member.name).lower():
             return member
 
 ########################### CHANGES ############################## 
