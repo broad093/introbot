@@ -378,9 +378,6 @@ async def on_message(message):
     if message.author.id == bot.user.id:
         return
 
-bot.run(BOT_TOKEN)
-#test
-
 #### RENDER PORT BINDING ####
 # Render requires a web server to keep the bot alive on the free tier.
 from flask import Flask
@@ -399,3 +396,6 @@ def run_webserver():
 
 # Start the Flask web server in a separate thread so it doesn't block your bot
 threading.Thread(target=run_webserver).start()
+
+# Start bot
+bot.run(BOT_TOKEN)
