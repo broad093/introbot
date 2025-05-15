@@ -380,3 +380,14 @@ async def on_message(message):
 
 bot.run(BOT_TOKEN)
 #test
+
+#### RENDER PORT BINDING ####
+# Render requires a web server to keep the bot alive on the free tier.
+import threading
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+
+def keep_alive():
+    server = HTTPServer(('0.0.0.0', 10000), SimpleHTTPRequestHandler)
+    server.serve_forever()
+
+threading.Thread(target=keep_alive).start()
