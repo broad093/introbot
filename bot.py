@@ -383,11 +383,19 @@ bot.run(BOT_TOKEN)
 
 #### RENDER PORT BINDING ####
 # Render requires a web server to keep the bot alive on the free tier.
+from flask import Flask
 import threading
-from http.server import SimpleHTTPRequestHandler, HTTPServer
 
-def keep_alive():
-    server = HTTPServer(('0.0.0.0', 10000), SimpleHTTPRequestHandler)
-    server.serve_forever()
+# Create Flask app
+app = Flask("")
 
-threading.Thread(target=keep_alive).start()
+@app.route("/")
+def home():
+    return "Bot is running"
+
+def run_webserver():
+    port = int(os.environ.get("PORT", 10000))  # Use Render's PORT or default 10000
+    app.run(host="0.0.0.0", port=port)
+
+# Start the Flask web server in a separate thread so it doesn't block your bot
+threading.Thread(target=run_webserver).start()
