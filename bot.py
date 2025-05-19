@@ -35,8 +35,8 @@ with open(messagehistory) as fp:
   historyIntros = json.load(fp)
  
 # Verify existing dict
-print(type(setIntros))
-print(type(historyIntros))
+print(type(setIntros),flush=True)
+print(type(historyIntros),flush=True)
  
 
 async def update_set_intros():
@@ -44,7 +44,7 @@ async def update_set_intros():
         json.dump(setIntros, json_file, 
                             indent=4,  
                             separators=(',',': '))
-    print('Successfully updated set intro')
+    print('Successfully updated set intro',flush=True)
 
 def check_set_intro_list(target_user):
     while True:
@@ -133,8 +133,8 @@ async def make_embed(target_user):
 
 @bot.event
 async def on_ready():
-    print('Logged in as')
-    print(bot.user.name)
+    print('Logged in as',flush=True)
+    print(bot.user.name,flush=True)
     print(bot.user.id)
     await bot.change_presence(activity=discord.Game(name="!intro [name or mention]"))
 
@@ -146,8 +146,8 @@ async def on_ready():
     print('Loading introductions list...')
     await update_intro_list()
     await refresh_intro_list()
-    print('history.json updated and refreshed')
-    print('------')
+    print('history.json updated and refreshed',flush=True)
+    print('------',flush=True)
 
 ########################### COMMANDS ########################### 
 # @client.group(invoke_without_command = True) # for this main command (.help)
@@ -164,20 +164,20 @@ async def intro(ctx, *,target_user):
         return
     else:
         try:
-            print("encoding", target_user)
+            print("encoding", target_user,flush=True)
             if is_mention(target_user):
                 target_user = await guild.fetch_member(strip_mention_to_id(target_user))
-                print("I tried converting user", target_user)
+                print("I tried converting user", target_user,flush=True)
             else:
                 target_user = await string_to_user(target_user) #target user can be a string
             await send_intro(ctx, target_user)
         except Exception as e:
-            print(e)
+            print(e,flush=True)
             await ctx.channel.send(content="Could not fetch intro.")
 
 @intro.command(name="-set")
 async def set(ctx, link: commands.MessageConverter):
-    print("setting intro...")
+    print("setting intro...",flush=True)
     if is_intro_channel(ctx):
         return
     else:
@@ -185,23 +185,23 @@ async def set(ctx, link: commands.MessageConverter):
             if ctx.author.id == link.author.id:
                 setIntros[ctx.author.name] = {'ID':link.author.id,'Intro':link.id}
                 await update_set_intros()
-                print("I tried setting user", link.author)
+                print("I tried setting user", link.author,flush=True)
                 await ctx.channel.send(f"Updated intro to: {link.jump_url}")
             else:
-                print("I tried setting user", ctx.author, "intro as", link.author)
+                print("I tried setting user", ctx.author, "intro as", link.author,flush=True)
                 await ctx.channel.send(content="Please set your own intro.")
         except Exception as e:
-            print(e, "\ninvalid link")
+            print(e, "\ninvalid link",flush=True)
             await ctx.channel.send(content="Please set a valid intro link.")
 @set.error
 async def set_error(ctx, error):
     if isinstance(error, commands.BadArgument):
-        print("invalid intro link")
+        print("invalid intro link",flush=True)
         await ctx.channel.send(content="Please set a valid intro link.")
 
 @intro.command(name="-reset")
 async def reset(ctx: commands.MessageConverter):
-    print("resetting to default intro...")
+    print("resetting to default intro...",flush=True)
     if is_intro_channel(ctx):
         return
     else:
@@ -209,30 +209,30 @@ async def reset(ctx: commands.MessageConverter):
             if ctx.author.name in setIntros:
                 setIntros.pop(ctx.author.name)
                 await update_set_intros()
-                print("I tried resetting intro by", ctx.author.name)
+                print("I tried resetting intro by", ctx.author.name,flush=True)
                 await ctx.channel.send(f"Reset to default intro.")
         except Exception as e:
-            print(e, "\nUser not in setIntros")
+            print(e, "\nUser not in setIntros",flush=True)
             await ctx.channel.send(content="Unable to reset intro, no saved intro found.")
 
 @intro.command(name="-dm")
 async def dm(ctx, *,  target_user):
-    print("get_intro_dm",target_user)
+    print("get_intro_dm",target_user,flush=True)
     try:
         if is_mention(target_user):
             target_user = await guild.fetch_member(strip_mention_to_id(target_user))
-            print("I tried converting user for DM", target_user)
+            print("I tried converting user for DM", target_user,flush=True)
         else:
             target_user = await string_to_user(target_user) #target user can be a string
         await send_intro_by_dm(ctx, target_user)
     except Exception as e:
-        print(e)
+        print(e,flush=True)
         if is_intro_channel(ctx):
             await ctx.channel.send(content="Could not fetch intro.")
 
 @intro.command(name="-refresh")
 async def refresh(ctx):
-    print("refreshing intro list")
+    print("refreshing intro list",flush=True)
     if is_intro_channel(ctx):
         return
     else:
@@ -275,7 +275,7 @@ Type `!intro -help` for more information on a command.
     embed.set_footer(text="If there are any problems with this bot, please let a moderator know.")
     await msg.send(embed=embed)
 
-    print('help information sent')
+    print('help information sent',flush=True)
 # - - - - - - - - - - - - - - - - - -
 
 async def get_setintro(target_user):
@@ -285,7 +285,7 @@ async def get_setintro(target_user):
     for user in data:
         if data[user]["ID"] == target_user.id:
             messageObj = await intro_channel.fetch_message(data[user]["Intro"])
-            print("sending set intro")
+            print("sending set intro",flush=True)
             return messageObj.author.display_name, messageObj.content, messageObj.jump_url
 
 async def get_intro(target_user):
@@ -294,42 +294,42 @@ async def get_intro(target_user):
         data = json.load(fp)
     for user in data:
         if data[user]["ID"] == target_user.id:
-            print("sending saved intro")
+            print("sending saved intro",flush=True)
             obj = await intro_channel.fetch_message(data[user]["Intro"])
             return obj.author.display_name, obj.content, obj.jump_url
 
 async def send_intro_by_dm(ctx, target_user):
-    print("send_intro_dm",target_user)
+    print("send_intro_dm",target_user,flush=True)
     try:
         embed = await make_embed(target_user)
         await ctx.author.send(embed=embed)
     #probably too long for embed
     except discord.errors.HTTPException as e:
-        print(e)
+        print(e,flush=True)
         username, message, url = await get_intro(target_user)
         introstring = "**{}**\n---------------------------------------\n".format(username)
         introstring += "{}\n---------------------------------------".format(message)
         avatar_file = await fileify(target_user.avatar)
         await ctx.author.send(content=introstring, file=avatar_file)
     except Exception as e:
-        print(e)
+        print(e,flush=True)
         await ctx.channel.send("Could not fetch intro.")
 
 async def send_intro(ctx, target_user):
-    print("send_intro",target_user)
+    print("send_intro",target_user,flush=True)
     try:
         embed = await make_embed(target_user)
         await ctx.channel.send(embed=embed)
     #probably too long for embed
     except discord.errors.HTTPException as e:
-        print(e)
+        print(e,flush=True)
         username, message, url = await get_intro(target_user)
         introstring = "**{}**\n---------------------------------------\n".format(username)
         introstring += "{}\n---------------------------------------".format(message)
         avatar_file = await fileify(target_user.avatar)
         await ctx.channel.send(content=introstring, file=avatar_file)
     except Exception as e:
-        print(e)
+        print(e,flush=True)
         await ctx.channel.send("Could not fetch intro.")
 
 async def string_to_user(string_to_convert):
@@ -360,7 +360,7 @@ Type `!intro -help` for more information on specific commands.
     embed.set_footer(text="If there are any problems with this bot, please let a moderator know.")
     await msg.send(embed=embed)
 
-    print('changelog sent')
+    print('changelog sent',flush=True)
 
 ########################### OTHER STUFF ########################### 
 
@@ -373,7 +373,7 @@ async def on_message(message):
         if message.type != "public_thread" or "private_thread":
             await update_intro_list()
             await refresh_intro_list()
-        print('Introductions updated and refreshed')
+        print('Introductions updated and refreshed',flush=True)
 
     if message.author.id == bot.user.id:
         return
